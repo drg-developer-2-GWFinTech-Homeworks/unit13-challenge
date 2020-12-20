@@ -194,22 +194,25 @@ def validate_data(age, investment_amount):
 def get_investment_recommendation(risk_level):
     """
     Computes recommended investment amount.
-
-    none: "100% bonds (AGG), 0% equities (SPY)"
-    very low: "80% bonds (AGG), 20% equities (SPY)"
-    low: "60% bonds (AGG), 40% equities (SPY)"
-    medium: "40% bonds (AGG), 60% equities (SPY)"
-    high: "20% bonds (AGG), 80% equities (SPY)"
-    very high: "0% bonds (AGG), 100% equities (SPY)"
+        none: "100% bonds (AGG), 0% equities (SPY)"
+        very low: "80% bonds (AGG), 20% equities (SPY)"
+        low: "60% bonds (AGG), 40% equities (SPY)"
+        medium: "40% bonds (AGG), 60% equities (SPY)"
+        high: "20% bonds (AGG), 80% equities (SPY)"
+        very high: "0% bonds (AGG), 100% equities (SPY)"
     """
     if risk_level == "None":
-        return (1.0, 0.0)
+        return "100% bonds (AGG), 0% equities (SPY)"
     elif risk_level == "Low":
-        return (0.6, 0.4)
+        return "60% bonds (AGG), 40% equities (SPY)"
     elif risk_level == "Medium":
-        return (0.4, 0.6)
+        return "40% bonds (AGG), 60% equities (SPY)"
     elif risk_level == "High":
-        return (0.2, 0.8)
+        return "20% bonds (AGG), 80% equities (SPY)"
+    elif risk_level == "Very Low":
+        return "80% bonds (AGG), 20% equities (SPY)"
+    elif risk_level == "Very High":
+        return "0% bonds (AGG), 100% equities (SPY)"
     else:
         return None
 
