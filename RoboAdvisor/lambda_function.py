@@ -2,6 +2,7 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+
 ### Functionality Helper Functions ###
 def parse_int(n):
     """
@@ -103,10 +104,7 @@ def recommend_portfolio(intent_request):
         slots = get_slots(intent_request)
 
         # Validates user's input using the validate_data function
-        # validation_result = validate_data(age, investmentAmount)
-        validation_result = build_validation_result(
-            False, "age", "The age must be greater than 0. Please try again."
-        )
+        validation_result = validate_data(age, investmentAmount)
 
         # If the data provided by the user is not valid,
         # the elicitSlot dialog action is used to re-prompt for the first violation detected.
@@ -157,36 +155,46 @@ def validate_data(age, investmentAmount):
     """
     Validates the data provided by the user.
     """
+
+    # Validate age
+
     if age is None or int(age) is None:
         return build_validation_result(
-            False, "age", "The age must be a number. Please try again."
+            False, "age", "Age must be a number. How old are you?"
         )
 
     age = int(age)
+
     if age <= 0:
         return build_validation_result(
-            False, "age", "The age must be greater than 0. Please try again."
+            False, "age", "Age must be greater than 0. How old are you?"
         )
-    elif age >= 65:
+
+    if age >= 65:
         return build_validation_result(
-            False, "age", "The age must be less than 65. Please try again."
+            False, "age", "Age must be less than 65. How old are you?"
         )
-    elif investmentAmount is None or float(investmentAmount) is None:
+
+    # Validate investmentAmount
+
+    if investmentAmount is None or float(investmentAmount) is None:
         return build_validation_result(
             False,
             "investmentAmount",
-            "The investment amount must be a number. Please try again.",
+            "The investment amount must be a number. How much do you want to invest?",
         )
 
     investmentAmount = float(investmentAmount)
+
     if investmentAmount < 5000:
         return build_validation_result(
             False,
             "investmentAmount",
-            "The investment amount must be greater than or equal to 5000. Please try again.",
+            "The investment amount must be greater than or equal to 5000. How much do you want to invest?",
         )
-    else:
-        build_validation_result(True, None, None)
+
+    # Success!
+    build_validation_result(True, None, None)
 
 
 def get_investment_recommendation(riskLevel):
