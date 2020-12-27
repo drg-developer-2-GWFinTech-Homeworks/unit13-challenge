@@ -86,10 +86,10 @@ def recommend_portfolio(intent_request):
     Performs dialog management and fulfillment for recommending a portfolio.
     """
 
-    first_name = get_slots(intent_request)["firstName"]
+    firstName = get_slots(intent_request)["firstName"]
     age = get_slots(intent_request)["age"]
-    investment_amount = get_slots(intent_request)["investmentAmount"]
-    risk_level = get_slots(intent_request)["riskLevel"]
+    investmentAmount = get_slots(intent_request)["investmentAmount"]
+    riskLevel = get_slots(intent_request)["riskLevel"]
     source = intent_request["invocationSource"]
 
     if source == "DialogCodeHook":
@@ -103,7 +103,10 @@ def recommend_portfolio(intent_request):
         slots = get_slots(intent_request)
 
         # Validates user's input using the validate_data function
-        validation_result = validate_data(age, investment_amount)
+        # validation_result = validate_data(age, investmentAmount)
+        validation_result = build_validation_result(
+            False, "age", "The age must be greater than 0. Please try again."
+        )
 
         # If the data provided by the user is not valid,
         # the elicitSlot dialog action is used to re-prompt for the first violation detected.
@@ -130,7 +133,7 @@ def recommend_portfolio(intent_request):
 
     ### YOUR FINAL INVESTMENT RECOMMENDATION CODE STARTS HERE ###
 
-    initial_recommendation = get_investment_recommendation(risk_level)
+    initial_recommendation = get_investment_recommendation(riskLevel)
 
     ### YOUR FINAL INVESTMENT RECOMMENDATION CODE ENDS HERE ###
 
@@ -143,14 +146,14 @@ def recommend_portfolio(intent_request):
             "content": """{} thank you for your information;
             based on the risk level you defined, my recommendation is to choose an investment portfolio with {}
             """.format(
-                first_name, initial_recommendation
+                firstName, initial_recommendation
             ),
         },
     )
 
 
 ### Data Validation ###
-def validate_data(age, investment_amount):
+def validate_data(age, investmentAmount):
     """
     Validates the data provided by the user.
     """
@@ -168,25 +171,25 @@ def validate_data(age, investment_amount):
         return build_validation_result(
             False, "age", "The age must be less than 65. Please try again."
         )
-    elif investment_amount is None or float(investment_amount) is None:
+    elif investmentAmount is None or float(investmentAmount) is None:
         return build_validation_result(
             False,
-            "investment_amount",
+            "investmentAmount",
             "The investment amount must be a number. Please try again.",
         )
 
-    investment_amount = float(investment_amount)
-    if investment_amount < 5000:
+    investmentAmount = float(investmentAmount)
+    if investmentAmount < 5000:
         return build_validation_result(
             False,
-            "investment_amount",
+            "investmentAmount",
             "The investment amount must be greater than or equal to 5000. Please try again.",
         )
     else:
         build_validation_result(True, None, None)
 
 
-def get_investment_recommendation(risk_level):
+def get_investment_recommendation(riskLevel):
     """
     Computes recommended investment amount.
         none: "100% bonds (AGG), 0% equities (SPY)"
@@ -196,17 +199,17 @@ def get_investment_recommendation(risk_level):
         high: "20% bonds (AGG), 80% equities (SPY)"
         very high: "0% bonds (AGG), 100% equities (SPY)"
     """
-    if risk_level == "None":
+    if riskLevel == "None":
         return "100% bonds (AGG), 0% equities (SPY)"
-    elif risk_level == "Low":
+    elif riskLevel == "Low":
         return "60% bonds (AGG), 40% equities (SPY)"
-    elif risk_level == "Medium":
+    elif riskLevel == "Medium":
         return "40% bonds (AGG), 60% equities (SPY)"
-    elif risk_level == "High":
+    elif riskLevel == "High":
         return "20% bonds (AGG), 80% equities (SPY)"
-    elif risk_level == "Very Low":
+    elif riskLevel == "Very Low":
         return "80% bonds (AGG), 20% equities (SPY)"
-    elif risk_level == "Very High":
+    elif riskLevel == "Very High":
         return "0% bonds (AGG), 100% equities (SPY)"
     else:
         return None
