@@ -1,4 +1,3 @@
-### Required Libraries ###
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
@@ -93,18 +92,12 @@ def recommend_portfolio(intent_request):
     source = intent_request["invocationSource"]
 
     if source == "DialogCodeHook":
-        # Perform basic validation on the supplied input slots.
-        # Use the elicitSlot dialog action to re-prompt
-        # for the first violation detected.
-
-        ### YOUR DATA VALIDATION CODE STARTS HERE ###
 
         # Gets all the slots
         slots = get_slots(intent_request)
 
         # Validates user's input using the validate_data function
-        validation_result = validate_data(age, investment_amount)
-
+        validation_result = validate_data(age, investment_amount, intent_request)
         # If the data provided by the user is not valid,
         # the elicitSlot dialog action is used to re-prompt for the first violation detected.
         if not validation_result["isValid"]:
@@ -118,22 +111,21 @@ def recommend_portfolio(intent_request):
                 validation_result["violatedSlot"],
                 validation_result["message"],
             )
-
-        ### YOUR DATA VALIDATION CODE ENDS HERE ###
-
         # Fetch current session attibutes
         output_session_attributes = intent_request["sessionAttributes"]
-
         return delegate(output_session_attributes, get_slots(intent_request))
-
     # Get the initial investment recommendation
+    initial_recommendation = {
+        "None": "100% bonds (AGG), 0% equities (SPY)",
+        "Very Low": "80% bonds (AGG), 20% equities (SPY)",
+        "Low": "60% bonds (AGG), 40% equities (SPY)",
+        "Medium": "40% bonds (AGG), 60% equities (SPY)",
+        "High": "20% bonds (AGG), 80% equities (SPY)",
+        "Very High": "0% bonds (AGG), 100% equities (SPY)",
+    }
 
     ### YOUR FINAL INVESTMENT RECOMMENDATION CODE STARTS HERE ###
-
-    initial_recommendation = get_investment_recommendation(risk_level)
-
     ### YOUR FINAL INVESTMENT RECOMMENDATION CODE ENDS HERE ###
-
     # Return a message with the initial recommendation based on the risk level.
     return close(
         intent_request["sessionAttributes"],
@@ -143,73 +135,33 @@ def recommend_portfolio(intent_request):
             "content": """{} thank you for your information;
             based on the risk level you defined, my recommendation is to choose an investment portfolio with {}
             """.format(
-                first_name, initial_recommendation
+                first_name, initial_recommendation[risk_level]
             ),
         },
     )
 
 
-### Data Validation ###
-def validate_data(age, investment_amount):
+def validate_data(age, investment_amount, intent_request):
     """
     Validates the data provided by the user.
     """
-    if age is None or int(age) is None:
-        return build_validation_result(
-            False, "age", "The age must be a number. Please try again."
-        )
-
-    age = int(age)
-    if age <= 0:
-        return build_validation_result(
-            False, "age", "The age must be greater than 0. Please try again."
-        )
-    elif age >= 65:
-        return build_validation_result(
-            False, "age", "The age must be less than 65. Please try again."
-        )
-    elif investment_amount is None or float(investment_amount) is None:
-        return build_validation_result(
-            False,
-            "investment_amount",
-            "The investment amount must be a number. Please try again.",
-        )
-
-    investment_amount = float(investment_amount)
-    if investment_amount < 5000:
-        return build_validation_result(
-            False,
-            "investment_amount",
-            "The investment amount must be greater than or equal to 5000. Please try again.",
-        )
-    else:
-        build_validation_result(True, None, None)
-
-
-def get_investment_recommendation(risk_level):
-    """
-    Computes recommended investment amount.
-        none: "100% bonds (AGG), 0% equities (SPY)"
-        very low: "80% bonds (AGG), 20% equities (SPY)"
-        low: "60% bonds (AGG), 40% equities (SPY)"
-        medium: "40% bonds (AGG), 60% equities (SPY)"
-        high: "20% bonds (AGG), 80% equities (SPY)"
-        very high: "0% bonds (AGG), 100% equities (SPY)"
-    """
-    if risk_level == "None":
-        return "100% bonds (AGG), 0% equities (SPY)"
-    elif risk_level == "Low":
-        return "60% bonds (AGG), 40% equities (SPY)"
-    elif risk_level == "Medium":
-        return "40% bonds (AGG), 60% equities (SPY)"
-    elif risk_level == "High":
-        return "20% bonds (AGG), 80% equities (SPY)"
-    elif risk_level == "Very Low":
-        return "80% bonds (AGG), 20% equities (SPY)"
-    elif risk_level == "Very High":
-        return "0% bonds (AGG), 100% equities (SPY)"
-    else:
-        return None
+    # Validate that the user is over 0 years old and under 65
+    if int(age) is not None:
+        if int(age) < 65 and int(age) > 0:
+            # Validate the investment amount, it should be > 5000
+            if investment_amount is not None:
+                investment_amount = float(
+                    investment_amount
+                )  # Since parameters are strings it's important to cast values
+                if investment_amount >= 5000:
+                    return build_validation_result(True, None, None)
+    # A True results is returned if age or amount are valid
+    return build_validation_result(
+        False,
+        "investment_amount",
+        "The amount to convert should be equal to or greater than $5,000, "
+        "please provide a correct amount in USD to convert.",
+    )
 
 
 ### Intents Dispatcher ###
@@ -217,13 +169,10 @@ def dispatch(intent_request):
     """
     Called when the user specifies an intent for this bot.
     """
-
     intent_name = intent_request["currentIntent"]["name"]
-
     # Dispatch to bot's intent handlers
     if intent_name == "RecommendPortfolio":
         return recommend_portfolio(intent_request)
-
     raise Exception("Intent with name " + intent_name + " not supported")
 
 
@@ -233,5 +182,4 @@ def lambda_handler(event, context):
     Route the incoming request based on intent.
     The JSON body of the request is provided in the event slot.
     """
-
     return dispatch(event)
