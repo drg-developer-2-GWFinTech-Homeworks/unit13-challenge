@@ -156,45 +156,54 @@ def validate_data(age, investmentAmount):
     Validates the data provided by the user.
     """
 
-    # Validate age
+    # Handle default starting values - pass responsibility to the slots to retrieve values
 
-    if age is None or int(age) is None:
-        return build_validation_result(
-            False, "age", "Age must be a number. How old are you?"
-        )
+    if age is None and investmentAmount is None:
+        return build_validation_result(True, None, None)
 
-    age = int(age)
+    if age is not None:
 
-    if age <= 0:
-        return build_validation_result(
-            False, "age", "Age must be greater than 0. How old are you?"
-        )
+        # Validate age
 
-    if age >= 65:
-        return build_validation_result(
-            False, "age", "Age must be less than 65. How old are you?"
-        )
+        if int(age) is None:
+            return build_validation_result(
+                False, "age", "Age must be a number. How old are you?"
+            )
 
-    # Validate investmentAmount
+        age = int(age)
 
-    if investmentAmount is None or float(investmentAmount) is None:
-        return build_validation_result(
-            False,
-            "investmentAmount",
-            "The investment amount must be a number. How much do you want to invest?",
-        )
+        if age <= 0:
+            return build_validation_result(
+                False, "age", "Age must be greater than 0. How old are you?"
+            )
 
-    investmentAmount = float(investmentAmount)
+        if age >= 65:
+            return build_validation_result(
+                False, "age", "Age must be less than 65. How old are you?"
+            )
 
-    if investmentAmount < 5000:
-        return build_validation_result(
-            False,
-            "investmentAmount",
-            "The investment amount must be greater than or equal to 5000. How much do you want to invest?",
-        )
+    if investmentAmount is not None:
+
+        # Validate investmentAmount
+
+        if float(investmentAmount) is None:
+            return build_validation_result(
+                False,
+                "investmentAmount",
+                "The investment amount must be a number. How much do you want to invest?",
+            )
+
+        investmentAmount = float(investmentAmount)
+
+        if investmentAmount < 5000:
+            return build_validation_result(
+                False,
+                "investmentAmount",
+                "The investment amount must be greater than or equal to 5000. How much do you want to invest?",
+            )
 
     # Success!
-    build_validation_result(True, None, None)
+    return build_validation_result(True, None, None)
 
 
 def get_investment_recommendation(riskLevel):

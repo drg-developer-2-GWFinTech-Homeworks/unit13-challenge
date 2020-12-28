@@ -18,7 +18,6 @@ def build_validation_result(is_valid, violated_slot, message_content):
     """
     if message_content is None:
         return {"isValid": is_valid, "violatedSlot": violated_slot}
-
     return {
         "isValid": is_valid,
         "violatedSlot": violated_slot,
@@ -38,7 +37,6 @@ def elicit_slot(session_attributes, intent_name, slots, slot_to_elicit, message)
     """
     Defines an elicit slot type response.
     """
-
     return {
         "sessionAttributes": session_attributes,
         "dialogAction": {
@@ -55,7 +53,6 @@ def delegate(session_attributes, slots):
     """
     Defines a delegate slot type response.
     """
-
     return {
         "sessionAttributes": session_attributes,
         "dialogAction": {"type": "Delegate", "slots": slots},
@@ -66,7 +63,6 @@ def close(session_attributes, fulfillment_state, message):
     """
     Defines a close slot type response.
     """
-
     response = {
         "sessionAttributes": session_attributes,
         "dialogAction": {
@@ -75,7 +71,6 @@ def close(session_attributes, fulfillment_state, message):
             "message": message,
         },
     }
-
     return response
 
 
@@ -84,25 +79,20 @@ def recommend_portfolio(intent_request):
     """
     Performs dialog management and fulfillment for recommending a portfolio.
     """
-
     first_name = get_slots(intent_request)["firstName"]
     age = get_slots(intent_request)["age"]
     investment_amount = get_slots(intent_request)["investmentAmount"]
     risk_level = get_slots(intent_request)["riskLevel"]
     source = intent_request["invocationSource"]
-
     if source == "DialogCodeHook":
-
         # Gets all the slots
         slots = get_slots(intent_request)
-
         # Validates user's input using the validate_data function
         validation_result = validate_data(age, investment_amount, intent_request)
         # If the data provided by the user is not valid,
         # the elicitSlot dialog action is used to re-prompt for the first violation detected.
         if not validation_result["isValid"]:
             slots[validation_result["violatedSlot"]] = None  # Cleans invalid slot
-
             # Returns an elicitSlot dialog to request new data for the invalid slot
             return elicit_slot(
                 intent_request["sessionAttributes"],
@@ -123,7 +113,6 @@ def recommend_portfolio(intent_request):
         "High": "20% bonds (AGG), 80% equities (SPY)",
         "Very High": "0% bonds (AGG), 100% equities (SPY)",
     }
-
     ### YOUR FINAL INVESTMENT RECOMMENDATION CODE STARTS HERE ###
     ### YOUR FINAL INVESTMENT RECOMMENDATION CODE ENDS HERE ###
     # Return a message with the initial recommendation based on the risk level.
@@ -145,23 +134,40 @@ def validate_data(age, investment_amount, intent_request):
     """
     Validates the data provided by the user.
     """
+    if age is None:
+        return build_validation_result(
+            False, "age", "age is None", "Please provide a valid age."
+        )
+    if investment_amount is None:
+        return build_validation_result(
+            False,
+            "investmentAmount",
+            "investment_amount is None",
+            "Please provide a valid investment_amount.",
+        )
     # Validate that the user is over 0 years old and under 65
     if int(age) is not None:
-        if int(age) < 65 and int(age) > 0:
-            # Validate the investment amount, it should be > 5000
-            if investment_amount is not None:
-                investment_amount = float(
-                    investment_amount
-                )  # Since parameters are strings it's important to cast values
-                if investment_amount >= 5000:
-                    return build_validation_result(True, None, None)
-    # A True results is returned if age or amount are valid
-    return build_validation_result(
-        False,
-        "investment_amount",
-        "The amount to convert should be equal to or greater than $5,000, "
-        "please provide a correct amount in USD to convert.",
-    )
+        return build_validation_result(
+            False, "age", "age has to be an integer.", "Please provide an integer age."
+        )
+    if int(age) < 65 and int(age) > 0:
+        return build_validation_result(
+            False,
+            "The age should be greater than 0 but less than 65.",
+            "Please enter a valid age.",
+        )
+    # Validate the investment amount, it should be > 5000
+    if investment_amount is not None:
+        investment_amount = float(investment_amount)
+        if investment_amount < 5000:
+            return build_validation_result(
+                False,
+                "investmentAmount",
+                "The amount to invest should be equal to or greater than $5,000, "
+                "Please enter an amount equal to or greater than $5,000.",
+            )
+
+    return build_validation_result(True, None, None)
 
 
 ### Intents Dispatcher ###
