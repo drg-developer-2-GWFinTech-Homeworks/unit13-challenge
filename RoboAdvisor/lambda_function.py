@@ -207,6 +207,53 @@ def validate_data(age, investmentAmount):
     return build_validation_result(True, None, None)
 
 
+### Data Validation ###
+def validate_data_v1(age, investmentAmount):
+    """
+    Validates the data provided by the user.
+    """
+
+    # Validate age
+
+    if age is None or int(age) is None:
+        return build_validation_result(
+            False, "age", "Age must be a number. How old are you?"
+        )
+
+    age = int(age)
+
+    if age <= 0:
+        return build_validation_result(
+            False, "age", "Age must be greater than 0. How old are you?"
+        )
+
+    if age >= 65:
+        return build_validation_result(
+            False, "age", "Age must be less than 65. How old are you?"
+        )
+
+    # Validate investmentAmount
+
+    if investmentAmount is None or float(investmentAmount) is None:
+        return build_validation_result(
+            False,
+            "investmentAmount",
+            "The investment amount must be a number. How much do you want to invest?",
+        )
+
+    investmentAmount = float(investmentAmount)
+
+    if investmentAmount < 5000:
+        return build_validation_result(
+            False,
+            "investmentAmount",
+            "The investment amount must be greater than or equal to 5000. How much do you want to invest?",
+        )
+
+    # Success!
+    build_validation_result(True, None, None)
+
+
 def get_investment_recommendation(riskLevel):
     """
     Computes recommended investment amount.

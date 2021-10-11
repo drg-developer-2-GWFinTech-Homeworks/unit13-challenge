@@ -1,10 +1,17 @@
 # Unit 13 Homework Assignment - The Power of the Cloud and Unsupervised Learning
 
-## Background
+## Overview
 
-It is time to take what you have learned about unsupervised learning and the AWS services and apply it to new situations. For this assignment, you will need to complete **one of two** (not both) challenges. Which challenge you take on is your choice. Just be sure to give it your all -- as the skills you hone will become powerful tools in your FinTech tool belt.
+Unsupervised learning and AWS services are put to use to solve two problems:
 
-### Before You Begin
+1. **RoboAdvisor**
+
+2. **ClusteringCrypto**
+
+
+
+## Procedure
+### 
 
 1. Create a new repository for this project called `unit13-challenge`. **Do not add this homework to an existing repository**.
 
